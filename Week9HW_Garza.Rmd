@@ -1,0 +1,95 @@
+---
+title: "Week9HW_GARZA"
+author: "Tony Garza"
+date: "July 20, 2016"
+output: 
+  html_document:
+    keep_md: TRUE
+---
+# Part1: ukcars
+```{r}
+library(fpp) #fpp package must be installed first
+
+data(ukcars)
+plot(ukcars)
+
+fitd <- decompose(ukcars)
+plot(fitd)
+
+fit <- stl(ukcars, s.window=5)
+plot(fit)
+
+eeadj <- seasadj(fitd)
+plot(eeadj)
+
+ukcars2 <- ts(c(ukcars[1:54],ukcars[55]+500,ukcars[56:191]),start=c(1978,1),frequency=12)
+plot(ukcars2)
+
+
+#plot(elecequip, col="gray",
+#  main="Electrical equipment manufacturing",
+#  ylab="New orders index", xlab="")
+#lines(fit$time.series[,2],col="red",ylab="Trend")
+```
+
+# Part2: Volatility Study for GW Pharmaceuticals PLC- ADR Stock (GWPH)
+## Download Data and Calculate Volatility
+```{r}
+library(tseries)
+
+stockdata <- get.hist.quote('gwph',quote="Close") #downloads the stock data
+length(stockdata)
+stockret <- log(lag(stockdata)) - log(stockdata) #create the log returns of the GWPH data set
+
+stockvol <- sd(stockret) * sqrt(250) * 100 #formula for volatilty
+stockvol #returns the volatility
+```
+
+### This stock has a volatility of 76%
+
+## Create Volatility Function (Continuous Lookback Window)
+```{r}
+## create volatility function
+get
+Vol <- function(d, logrets)
+{
+  
+  var = 0
+  
+  lam = 0
+  
+  varlist <- c()
+  
+  for (r in logrets) {
+    
+    lam = lam*(1 - 1/d) + 1
+    
+    var = (1 - 1/lam)*var + (1/lam)*r^2
+    
+    varlist <- c(varlist, var)
+    
+  }
+  
+  sqrt(varlist)
+}
+```
+## Plot the results with varying weights
+```{r}
+
+
+volest <- Vol(10,stockret) # use function to provide volatility for different values of d (10)
+
+volest2 <- Vol(30,stockret) # use function to provide volatility for different values of d (30)
+
+volest3 <- Vol(100,stockret) # use function to provide volatility for different values of d (100)
+
+plot(volest,type="l", main="Volatility of GWPH Stock", sub="Continuous Lookback Window") # plot the results
+
+lines(volest2,type="l",col="red") # overlay d=30 plot
+
+lines(volest3, type = "l", col="blue") # overlay d=100 plot
+
+legend(0,.25,c("d=10","d=30","d=100"),lty=c(1,1),lwd=c(2.5,2.5),col=c("black","red","blue")) # add legend
+```
+
+### This stock started somewhat volatile, stabalized, and then went extremely volatile toward the end of the data stream
