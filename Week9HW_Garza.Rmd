@@ -7,31 +7,50 @@ output:
     keep_md: TRUE
 ---
 # Part1: ukcars
+## Load data and Plot
 ```{r}
-library(fpp) #fpp package must be installed first
+library(fpp) # fpp package must be installed first
 
-data(ukcars)
-plot(ukcars)
-
-fitd <- decompose(ukcars)
-plot(fitd)
-
-fit <- stl(ukcars, s.window=5)
-plot(fit)
-
-eeadj <- seasadj(fitd)
-plot(eeadj)
-
-ukcars2 <- ts(c(ukcars[1:54],ukcars[55]+500,ukcars[56:191]),start=c(1978,1),frequency=12)
-plot(ukcars2)
-
-
-#plot(elecequip, col="gray",
-#  main="Electrical equipment manufacturing",
-#  ylab="New orders index", xlab="")
-#lines(fit$time.series[,2],col="red",ylab="Trend")
+data(ukcars) # call the ukcars data
+plot(ukcars, main="ukcars Time Series Plot") # plot ukcars data
 ```
 
+### Plotting the time series you can see both seasonal fluctuations and an upward trend throughout most of the data series.
+
+## Use a classical decomposition to calculate the trend-cycle and seasonal indices
+```{r}
+fitd <- decompose(ukcars) #classical decompostion method
+plot(fitd) #plot the decomposition to study the data further
+```
+
+### The results support the analysis from the plot above that there are both consistent seasonal fluctuations as well as an overall trend to the data.
+
+## Compute and plot the seasonally adjusted data
+```{r}
+eeadj <- seasadj(fitd)
+plot(eeadj,main="Seasonally Adjusted Data") # plot the seasonally adjusted data
+ukcars2 <- ts(c(ukcars[1:54],ukcars[55]+500,ukcars[56:191]),start=c(1978,1),frequency=12) # create outlier in value 55
+fitd <- decompose(ukcars2) # use classic decomp
+eeadj2 <- seasadj(fitd) # calculate seasonally adjusted data
+plot(eeadj2,main="Adding 500 to Value #55") # plot to see incfluence of outlier
+```
+
+```{r}
+ukcars3 <- ts(c(ukcars[1:54],ukcars[55:160],ukcars[161]+500,ukcars[162:191]),start=c(1978,1),frequency=12) # create outlier in value 161
+fitd <- decompose(ukcars3) # use classic decomp
+eeadj3 <- seasadj(fitd) # calculate seasonally adjusted data
+plot(eeadj3,main="Adding 500 to Value #161") # plot to see incfluence of outlier
+```
+
+### Above I plotted the seasonally adjusted data. I also added 500 to one observation toward the beginning of the time series and then adjusted a value toward the end of the time series. Adding 500 to value 55 displayed a large upward spike in the data, however adding 500 to value 161 had a very minimal affect. So outliers have a greater influence toward the beginning of the time series.
+
+## Use STL to decompose the series
+```{r}
+fit <- stl(ukcars, s.window=5) # STL function to decompose the series
+plot(fit, main="STL decomposition of ukcars data series") 
+```
+
+### Using STL method 
 # Part2: Volatility Study for GW Pharmaceuticals PLC- ADR Stock (GWPH)
 ## Download Data and Calculate Volatility
 ```{r}

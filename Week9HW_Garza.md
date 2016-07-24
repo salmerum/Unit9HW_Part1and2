@@ -2,9 +2,10 @@
 Tony Garza  
 July 20, 2016  
 # Part1: ukcars
+## Load data and Plot
 
 ```r
-library(fpp) #fpp package must be installed first
+library(fpp) # fpp package must be installed first
 ```
 
 ```
@@ -51,46 +52,63 @@ library(fpp) #fpp package must be installed first
 ```
 
 ```r
-data(ukcars)
-plot(ukcars)
+data(ukcars) # call the ukcars data
+plot(ukcars, main="ukcars Time Series Plot") # plot ukcars data
 ```
 
 ![](Week9HW_Garza_files/figure-html/unnamed-chunk-1-1.png)<!-- -->
 
-```r
-fitd <- decompose(ukcars)
-plot(fitd)
-```
+### Plotting the time series you can see both seasonal fluctuations and an upward trend throughout most of the data series.
 
-![](Week9HW_Garza_files/figure-html/unnamed-chunk-1-2.png)<!-- -->
+## Use a classical decomposition to calculate the trend-cycle and seasonal indices
 
 ```r
-fit <- stl(ukcars, s.window=5)
-plot(fit)
+fitd <- decompose(ukcars) #classical decompostion method
+plot(fitd) #plot the decomposition to study the data further
 ```
 
-![](Week9HW_Garza_files/figure-html/unnamed-chunk-1-3.png)<!-- -->
+![](Week9HW_Garza_files/figure-html/unnamed-chunk-2-1.png)<!-- -->
+
+### The results support the analysis from the plot above that there are both consistent seasonal fluctuations as well as an overall trend to the data.
+
+## Compute and plot the seasonally adjusted data
 
 ```r
 eeadj <- seasadj(fitd)
-plot(eeadj)
+plot(eeadj,main="Seasonally Adjusted Data") # plot the seasonally adjusted data
 ```
 
-![](Week9HW_Garza_files/figure-html/unnamed-chunk-1-4.png)<!-- -->
+![](Week9HW_Garza_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
 
 ```r
-ukcars2 <- ts(c(ukcars[1:54],ukcars[55]+500,ukcars[56:191]),start=c(1978,1),frequency=12)
-plot(ukcars2)
+ukcars2 <- ts(c(ukcars[1:54],ukcars[55]+500,ukcars[56:191]),start=c(1978,1),frequency=12) # create outlier in value 55
+fitd <- decompose(ukcars2) # use classic decomp
+eeadj2 <- seasadj(fitd) # calculate seasonally adjusted data
+plot(eeadj2,main="Adding 500 to Value #55") # plot to see incfluence of outlier
 ```
 
-![](Week9HW_Garza_files/figure-html/unnamed-chunk-1-5.png)<!-- -->
+![](Week9HW_Garza_files/figure-html/unnamed-chunk-3-2.png)<!-- -->
+
 
 ```r
-#plot(elecequip, col="gray",
-#  main="Electrical equipment manufacturing",
-#  ylab="New orders index", xlab="")
-#lines(fit$time.series[,2],col="red",ylab="Trend")
+ukcars3 <- ts(c(ukcars[1:54],ukcars[55:160],ukcars[161]+500,ukcars[162:191]),start=c(1978,1),frequency=12) # create outlier in value 161
+fitd <- decompose(ukcars3) # use classic decomp
+eeadj3 <- seasadj(fitd) # calculate seasonally adjusted data
+plot(eeadj3,main="Adding 500 to Value #161") # plot to see incfluence of outlier
 ```
+
+![](Week9HW_Garza_files/figure-html/unnamed-chunk-4-1.png)<!-- -->
+
+### Above I plotted the seasonally adjusted data. I also added 500 to one observation toward the beginning of the time series and then adjusted a value toward the end of the time series. Adding 500 to value 55 displayed a large upward spike in the data, however adding 500 to value 161 had a very minimal affect. So outliers have a greater influence toward the beginning of the time series.
+
+## Use STL to decompose the series
+
+```r
+fit <- stl(ukcars, s.window=5) # STL function to decompose the series
+plot(fit) 
+```
+
+![](Week9HW_Garza_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
 
 # Part2: Volatility Study for GW Pharmaceuticals PLC- ADR Stock (GWPH)
 ## Download Data and Calculate Volatility
@@ -137,7 +155,7 @@ get
 ## function (x, pos = -1L, envir = as.environment(pos), mode = "any", 
 ##     inherits = TRUE) 
 ## .Internal(get(x, envir, mode, inherits))
-## <bytecode: 0x7fe9219df3f8>
+## <bytecode: 0x7fc1db1d87f8>
 ## <environment: namespace:base>
 ```
 
@@ -182,6 +200,6 @@ lines(volest3, type = "l", col="blue") # overlay d=100 plot
 legend(0,.25,c("d=10","d=30","d=100"),lty=c(1,1),lwd=c(2.5,2.5),col=c("black","red","blue")) # add legend
 ```
 
-![](Week9HW_Garza_files/figure-html/unnamed-chunk-4-1.png)<!-- -->
+![](Week9HW_Garza_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
 
 ### This stock started somewhat volatile, stabalized, and then went extremely volatile toward the end of the data stream
